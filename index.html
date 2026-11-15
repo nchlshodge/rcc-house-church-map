@@ -36,6 +36,8 @@ h1{margin:10px 0 14px;font-size:clamp(32px,5.2vw,56px);line-height:1.05;font-wei
 .chips{flex:none;display:flex;gap:8px;padding:12px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
 .chip{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 15px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-size:13px;font-weight:500;cursor:pointer}
 .chip .sw{width:10px;height:10px;border-radius:50%;background:var(--c,#999)}
+.chip[aria-pressed="true"] .sw{box-shadow:0 0 0 2px #fff}
+.nolabels .cty{display:none}
 .chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
 #map{flex:1;min-height:0;background:#d9e7f6}
 .panel{display:flex;flex-direction:column}
@@ -58,6 +60,7 @@ h1{margin:10px 0 14px;font-size:clamp(32px,5.2vw,56px);line-height:1.05;font-wei
 .pinb{width:34px;height:34px;border-radius:50%;background:var(--c);color:#fff;border:3px solid #fff;box-shadow:0 3px 8px rgba(5,20,43,.4);display:grid;place-items:center;font:700 14px Poppins,sans-serif}
 .pinb.sel{outline:3px solid var(--navy)}
 .churchb{width:30px;height:30px;border-radius:8px;background:var(--navy);border:3px solid #fff;box-shadow:0 3px 8px rgba(5,20,43,.4);display:grid;place-items:center}
+.cty{background:none;border:0;box-shadow:none;color:#05142b;opacity:.7;font:600 11px Poppins,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 0 3px #fff,0 0 3px #fff}.cty:before{display:none}
 .leaflet-container{font-family:Poppins,system-ui,sans-serif}
 footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:13px;color:var(--muted)}
 html.embed body{background:transparent}
@@ -89,6 +92,7 @@ html.embed .wrap{margin:0;padding:12px}
   <section class="app">
     <div class="card mapcard">
       <div class="chips" id="chips" role="toolbar" aria-label="Filter by Sunday of the month"></div>
+      <div class="chips" style="border-top:0"><button class="chip" id="cty" type="button" aria-pressed="true"><span class="sw" style="--c:#05142b"></span>County lines</button><span style="align-self:center;font-size:12px;color:var(--muted)">Click the map to turn on scroll-zoom, or use + / −</span></div>
       <div id="map" role="application" aria-label="Map of house church areas"></div>
     </div>
     <aside class="card panel">
@@ -121,8 +125,8 @@ html.embed .wrap{margin:0;padding:12px}
   }
   function fmt(d){ return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); }
 
-  var map = L.map('map',{scrollWheelZoom:false,zoomControl:true}).setView([42.72,-83.15],9);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap contributors'}).addTo(map);
+  var map = L.map('map',{scrollWheelZoom:false,zoomControl:true,maxZoom:19}).setView([42.72,-83.15],9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
   map.on('click', function(){ map.scrollWheelZoom.enable(); });
   map.on('mouseout', function(){ map.scrollWheelZoom.disable(); });
 
@@ -137,6 +141,17 @@ html.embed .wrap{margin:0;padding:12px}
       html:'<div class="pinb" style="--c:'+COLORS[h.week]+'">'+h.n+'</div>'})}).addTo(map);
     markers[h.id].on('click', function(){ select(h.id,true); });
   });
+
+  // County lines (US Census boundaries, Michigan)
+  var counties = L.layerGroup(), labelsOn = false;
+  fetch('assets/mi-counties.json').then(function(r){return r.json();}).then(function(gj){
+    L.geoJSON(gj,{interactive:false,style:{color:'#05142b',weight:2,opacity:.55,dashArray:'7 5',fill:false},
+      onEachFeature:function(f,l){ l.bindTooltip(f.properties.NAME.replace(' County','')+' Co.',{permanent:true,direction:'center',className:'cty'}); }}).addTo(counties);
+    counties.addTo(map); 
+  }).catch(function(){});
+  function lab(){ document.getElementById('map').classList.toggle('nolabels', map.getZoom()<9); } map.on('zoomend',lab); lab();
+  var tgl = document.getElementById('cty');
+  tgl.onclick = function(){ var on = tgl.getAttribute('aria-pressed')!=='true'; tgl.setAttribute('aria-pressed',on); if(on) counties.addTo(map); else map.removeLayer(counties); };
 
   var chips = document.getElementById('chips');
   [[0,'All groups']].concat([1,2,3,4].map(function(n){return [n,ORD[n]+' Sunday'];})).forEach(function(c){
