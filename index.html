@@ -59,7 +59,7 @@ h1{margin:10px 0 14px;font-size:clamp(32px,5.2vw,56px);line-height:1.05;font-wei
 .empty{padding:20px;color:var(--muted);font-size:14px}
 .pinb{width:34px;height:34px;border-radius:50%;background:var(--c);color:#fff;border:3px solid #fff;box-shadow:0 3px 8px rgba(5,20,43,.4);display:grid;place-items:center;font:700 14px Poppins,sans-serif}
 .pinb.sel{outline:3px solid var(--navy)}
-.churchb{width:30px;height:30px;border-radius:8px;background:var(--navy);border:3px solid #fff;box-shadow:0 3px 8px rgba(5,20,43,.4);display:grid;place-items:center}
+.churchb{width:52px;height:52px;border-radius:50%;background:#fff;border:3px solid #05142b;box-shadow:0 0 0 4px rgba(37,137,229,.35),0 4px 12px rgba(5,20,43,.5);display:grid;place-items:center}.churchb img{width:30px!important;max-width:30px!important;height:auto!important}.rcclabel{background:#05142b;color:#fff;border:0;border-radius:8px;font:600 12px Poppins,sans-serif;padding:5px 10px;box-shadow:0 4px 10px rgba(5,20,43,.4)}.rcclabel:before{display:none}
 .cty{background:none;border:0;box-shadow:none;color:#05142b;opacity:.7;font:600 11px Poppins,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 0 3px #fff,0 0 3px #fff}.cty:before{display:none}
 .leaflet-container{font-family:Poppins,system-ui,sans-serif}
 footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:13px;color:var(--muted)}
@@ -70,7 +70,7 @@ html.embed .wrap{margin:0;padding:12px}
   .hero{padding-bottom:84px}.hero .in{margin-top:32px}.hero .bar a.site{display:none}
   .wrap{padding:0 12px 28px}
   .app{grid-template-columns:1fr;height:auto;gap:14px}
-  #map{flex:none;height:360px}
+  #map{flex:none;height:440px}
   .list{overflow:visible}
 }
 </style>
@@ -130,9 +130,9 @@ html.embed .wrap{margin:0;padding:12px}
   map.on('click', function(){ map.scrollWheelZoom.enable(); });
   map.on('mouseout', function(){ map.scrollWheelZoom.disable(); });
 
-  L.marker([CHURCH.lat,CHURCH.lng],{title:CHURCH.name,keyboard:false,icon:L.divIcon({className:'',iconSize:[30,30],iconAnchor:[15,15],
-    html:'<div class="churchb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v5M10 4.5h4M5 22V12l7-5 7 5v10zM10 22v-5h4v5"/></svg></div>'})})
-    .addTo(map).bindTooltip(CHURCH.name,{direction:'top',offset:[0,-12]});
+  L.marker([CHURCH.lat,CHURCH.lng],{title:CHURCH.name,zIndexOffset:1000,keyboard:false,icon:L.divIcon({className:'',iconSize:[52,52],iconAnchor:[26,26],
+    html:'<div class="churchb"><img src="assets/logo-blue.png" alt="RCC"></div>'})})
+    .addTo(map).bindTooltip('Rochester Christian Church',{permanent:true,direction:'top',offset:[0,-26],className:'rcclabel'});
 
   H.forEach(function(h,i){
     h.n = i+1;
@@ -192,7 +192,7 @@ html.embed .wrap{margin:0;padding:12px}
     render(false);
     if (pan) map.flyTo([h.lat,h.lng],Math.max(map.getZoom(),11),{duration:.6});
   }
-  function fitAll(){ map.invalidateSize(); map.fitBounds(L.latLngBounds(H.map(function(h){return [h.lat,h.lng];})).pad(.2)); }
+  function fitAll(){ map.invalidateSize(); map.fitBounds(L.latLngBounds(H.map(function(h){return [h.lat,h.lng];})).pad(.06)); }
   render(false); fitAll();
   window.addEventListener('load', fitAll);
 })();

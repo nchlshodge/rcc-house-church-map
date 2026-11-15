@@ -10,4 +10,4 @@ window.HOUSES = [
   { id:'h6', week:4, city:'Oakland Township', lat:42.745, lng:-83.150, status:'starting',  note:'First gathering in November.' },
   { id:'h7', week:4, city:'Farmington Hills', lat:42.500, lng:-83.380, status:'confirmed' }
 ];
-window.CHURCH = { name:'Rochester Christian Church', lat:42.700, lng:-83.130 };
+window.CHURCH = { name:'Rochester Christian Church', lat:42.7346, lng:-83.1333 };
