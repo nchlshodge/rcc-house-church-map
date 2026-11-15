@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Churches · Rochester Christian Church</title>
+<meta name="description" content="Find a Rochester Christian Church house church near you. Neighbors gathering in homes one Sunday a month.">
+<link rel="icon" href="assets/logo-blue.png">
+<link rel="stylesheet" href="assets/leaflet.css">
+<style>
+@font-face{font-family:Poppins;font-weight:400;font-display:swap;src:url(assets/poppins-400.woff2) format('woff2')}
+@font-face{font-family:Poppins;font-weight:500;font-display:swap;src:url(assets/poppins-500.woff2) format('woff2')}
+@font-face{font-family:Poppins;font-weight:600;font-display:swap;src:url(assets/poppins-600.woff2) format('woff2')}
+@font-face{font-family:Poppins;font-weight:700;font-display:swap;src:url(assets/poppins-700.woff2) format('woff2')}
+:root{--navy:#05142b;--blue:#2589e5;--blue-d:#145fa4;--paper:#fafafa;--ink:#05142b;--muted:#5e6778;--line:#e4e9f0;
+  --w1:#2589e5;--w2:#0f9d8a;--w3:#e08a1e;--w4:#8a5cd6;
+  --shadow:0 24px 60px -28px rgba(5,20,43,.45),0 0 0 1px rgba(5,20,43,.05)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+a{color:var(--blue-d)}
+:focus-visible{outline:3px solid rgba(37,137,229,.45);outline-offset:2px}
+.hero{color:#fff;padding:26px 20px 100px;background:radial-gradient(900px 420px at 88% -10%,rgba(37,137,229,.42),transparent 62%),var(--navy)}
+.hero .bar,.hero .in{max-width:1240px;margin:0 auto}
+.hero .bar{display:flex;align-items:center;justify-content:space-between}
+.hero .bar img{height:42px;display:block}
+.hero .bar a.site{color:#fff;text-decoration:none;font-size:14px;font-weight:500;border:1px solid rgba(255,255,255,.3);padding:9px 16px;border-radius:999px}
+.hero .in{margin-top:48px}
+.kicker{margin:0;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#8fc6f8}
+h1{margin:10px 0 14px;font-size:clamp(32px,5.2vw,56px);line-height:1.05;font-weight:700;letter-spacing:-.02em}
+.lead{margin:0;max-width:60ch;font-size:17px;line-height:1.65;color:#c8d3e3}
+.wrap{max-width:1240px;margin:-60px auto 0;padding:0 20px 40px}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;height:640px}
+.card{background:#fff;border-radius:24px;box-shadow:var(--shadow);overflow:hidden;min-width:0}
+.mapcard{display:flex;flex-direction:column}
+.chips{flex:none;display:flex;gap:8px;padding:12px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 15px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-size:13px;font-weight:500;cursor:pointer}
+.chip .sw{width:10px;height:10px;border-radius:50%;background:var(--c,#999)}
+.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+#map{flex:1;min-height:0;background:#d9e7f6}
+.panel{display:flex;flex-direction:column}
+.panel h2{margin:0;padding:18px 20px 6px;font-size:15px;font-weight:600}
+.list{flex:1;min-height:0;overflow-y:auto;padding:8px 12px 16px;display:flex;flex-direction:column;gap:8px}
+.item{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;cursor:pointer}
+.item:hover{border-color:#c9d4e2}
+.item.sel{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,137,229,.15)}
+.badge{flex:none;width:34px;height:34px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.item b{display:block;font-size:15px;font-weight:600}
+.item .when{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.item .next{display:block;font-size:13px;margin-top:6px;color:var(--ink)}
+.tag{display:inline-block;margin-top:8px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:#eaf3fd;color:var(--blue-d)}
+.tag.starting{background:#fff1dc;color:#9a5a05}
+.tag.maybe-moving{background:#f0ecf9;color:#5a3ea0}
+.note{display:block;font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+.cta{flex:none;margin:0 12px 12px;padding:16px;border-radius:16px;background:var(--navy);color:#fff;font-size:13.5px;line-height:1.55}
+.cta a{color:#8fc6f8;font-weight:600}
+.empty{padding:20px;color:var(--muted);font-size:14px}
+.pinb{width:34px;height:34px;border-radius:50%;background:var(--c);color:#fff;border:3px solid #fff;box-shadow:0 3px 8px rgba(5,20,43,.4);display:grid;place-items:center;font:700 14px Poppins,sans-serif}
+.pinb.sel{outline:3px solid var(--navy)}
+.churchb{width:30px;height:30px;border-radius:8px;background:var(--navy);border:3px solid #fff;box-shadow:0 3px 8px rgba(5,20,43,.4);display:grid;place-items:center}
+.leaflet-container{font-family:Poppins,system-ui,sans-serif}
+footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:13px;color:var(--muted)}
+html.embed body{background:transparent}
+html.embed .hero,html.embed footer{display:none}
+html.embed .wrap{margin:0;padding:12px}
+@media (max-width:900px){
+  .hero{padding-bottom:84px}.hero .in{margin-top:32px}.hero .bar a.site{display:none}
+  .wrap{padding:0 12px 28px}
+  .app{grid-template-columns:1fr;height:auto;gap:14px}
+  #map{flex:none;height:360px}
+  .list{overflow:visible}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="bar">
+    <a href="https://rochesterchristian.church" aria-label="Rochester Christian Church home"><img src="assets/logo-white.png" alt="Rochester Christian Church"></a>
+    <a class="site" href="https://rochesterchristian.church">rochesterchristian.church</a>
+  </div>
+  <div class="in">
+    <p class="kicker">House Churches</p>
+    <h1>Church in a home near you</h1>
+    <p class="lead">One Sunday a month, neighbors gather in a living room to share a meal, pray, and talk about God's Word. Find the group closest to you.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="app">
+    <div class="card mapcard">
+      <div class="chips" id="chips" role="toolbar" aria-label="Filter by Sunday of the month"></div>
+      <div id="map" role="application" aria-label="Map of house church areas"></div>
+    </div>
+    <aside class="card panel">
+      <h2 id="count"></h2>
+      <div class="list" id="list"></div>
+      <div class="cta">Want to visit or host one? Reach out to the church office and we'll connect you with the group.<br><a href="https://rochesterchristian.church">rochesterchristian.church</a></div>
+    </aside>
+  </section>
+</main>
+<footer>Circles show the general area of each group, not a home address. Rochester Christian Church · 4435 N Rochester Rd, Rochester, MI 48306</footer>
+
+<script src="assets/leaflet.js"></script>
+<script src="houses.js"></script>
+<script>
+(function(){
+  if (/[?&]embed=1\b/.test(location.search)) document.documentElement.classList.add('embed');
+  var COLORS = {1:'#2589e5',2:'#0f9d8a',3:'#e08a1e',4:'#8a5cd6'};
+  var ORD = {1:'1st',2:'2nd',3:'3rd',4:'4th'};
+  var STATUS = {confirmed:'Meeting now', starting:'Starting soon', 'maybe-moving':'Location may change'};
+  var H = window.HOUSES, filter = 0, sel = null, markers = {}, circles = {};
+
+  // Next occurrence of the nth Sunday, today or later.
+  function nextDate(n){
+    var t = new Date(); t.setHours(0,0,0,0);
+    for (var m = 0; m < 3; m++){
+      var d = new Date(t.getFullYear(), t.getMonth()+m, 1);
+      d.setDate(1 + ((7 - d.getDay()) % 7) + (n-1)*7);
+      if (d >= t) return d;
+    }
+  }
+  function fmt(d){ return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); }
+
+  var map = L.map('map',{scrollWheelZoom:false,zoomControl:true}).setView([42.72,-83.15],9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenStreetMap contributors'}).addTo(map);
+  map.on('click', function(){ map.scrollWheelZoom.enable(); });
+  map.on('mouseout', function(){ map.scrollWheelZoom.disable(); });
+
+  L.marker([CHURCH.lat,CHURCH.lng],{title:CHURCH.name,keyboard:false,icon:L.divIcon({className:'',iconSize:[30,30],iconAnchor:[15,15],
+    html:'<div class="churchb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v5M10 4.5h4M5 22V12l7-5 7 5v10zM10 22v-5h4v5"/></svg></div>'})})
+    .addTo(map).bindTooltip(CHURCH.name,{direction:'top',offset:[0,-12]});
+
+  H.forEach(function(h,i){
+    h.n = i+1;
+    circles[h.id] = L.circle([h.lat,h.lng],{radius:1500,color:COLORS[h.week],weight:2,fillColor:COLORS[h.week],fillOpacity:.15}).addTo(map);
+    markers[h.id] = L.marker([h.lat,h.lng],{title:h.city+', '+ORD[h.week]+' Sunday',icon:L.divIcon({className:'',iconSize:[34,34],iconAnchor:[17,17],
+      html:'<div class="pinb" style="--c:'+COLORS[h.week]+'">'+h.n+'</div>'})}).addTo(map);
+    markers[h.id].on('click', function(){ select(h.id,true); });
+  });
+
+  var chips = document.getElementById('chips');
+  [[0,'All groups']].concat([1,2,3,4].map(function(n){return [n,ORD[n]+' Sunday'];})).forEach(function(c){
+    var b = document.createElement('button'); b.className='chip'; b.type='button'; b.setAttribute('aria-pressed', c[0]===filter);
+    b.innerHTML = (c[0] ? '<span class="sw" style="--c:'+COLORS[c[0]]+'"></span>' : '') + c[1];
+    b.onclick = function(){ filter = c[0]; sel = null; [].forEach.call(chips.children,function(x,i){ x.setAttribute('aria-pressed', i===filter); }); render(true); };
+    chips.appendChild(b);
+  });
+
+  function visible(){ return H.filter(function(h){ return !filter || h.week===filter; }); }
+
+  function render(fit){
+    var v = visible(), list = document.getElementById('list');
+    document.getElementById('count').textContent = v.length + (v.length===1?' house church':' house churches');
+    list.innerHTML = '';
+    if (!v.length) list.innerHTML = '<div class="empty">No groups on this Sunday yet.</div>';
+    H.forEach(function(h){
+      var on = !filter || h.week===filter;
+      markers[h.id].setOpacity(on?1:0); circles[h.id].setStyle({opacity:on?1:0,fillOpacity:on?.15:0});
+      if (markers[h.id].getElement()) markers[h.id].getElement().style.pointerEvents = on?'':'none';
+      var el = markers[h.id].getElement(); if (el){ var p = el.firstChild; p.classList.toggle('sel', sel===h.id); }
+    });
+    v.forEach(function(h){
+      var b = document.createElement('button'); b.type='button'; b.className='item'+(sel===h.id?' sel':'');
+      var nx = nextDate(h.week);
+      b.innerHTML = '<span class="badge" style="--c:'+COLORS[h.week]+'">'+h.n+'</span><span><b>'+h.city+'</b>'
+        + '<span class="when">'+ORD[h.week]+' Sunday of the month</span>'
+        + '<span class="next">Next: '+fmt(nx)+'</span>'
+        + '<span class="tag '+h.status+'">'+STATUS[h.status]+'</span>'
+        + (h.note?'<span class="note">'+h.note+'</span>':'') + '</span>';
+      b.onclick = function(){ select(h.id,true); };
+      list.appendChild(b);
+    });
+    if (fit && v.length){ map.fitBounds(L.latLngBounds(v.map(function(h){return [h.lat,h.lng];})).pad(.25),{maxZoom:11}); }
+  }
+  function select(id,pan){
+    sel = id; var h = H.filter(function(x){return x.id===id;})[0];
+    render(false);
+    if (pan) map.flyTo([h.lat,h.lng],Math.max(map.getZoom(),11),{duration:.6});
+  }
+  function fitAll(){ map.invalidateSize(); map.fitBounds(L.latLngBounds(H.map(function(h){return [h.lat,h.lng];})).pad(.2)); }
+  render(false); fitAll();
+  window.addEventListener('load', fitAll);
+})();
+</script>
+</body>
+</html>
